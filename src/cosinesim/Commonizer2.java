@@ -280,7 +280,7 @@ public class Commonizer2 {
 	{
 		String subs,out,org=inp;
 		int len, ind,i,j,k;
-		String dattyp[]= {"int ", "byte ", "long ", "double ", "float ", "short ", "char ", "boolean ", "String "};
+		String dattyp[]= {"int", "byte", "long", "double", "float", "short", "char", "boolean", "String"};
 		for (i=0;i<9;i++)
 		{
 				do {
@@ -289,55 +289,98 @@ public class Commonizer2 {
 					if (ind!=-1)
 					{
 						ind+=dattyp[i].length();
-						if (org.charAt(ind)!='#') {
-						for (k=ind;k<len;k++)
-						{
-							if (org.charAt(k)==',') {
-								subs = org.substring(ind, k);
-								subs = subs.replace(" ", "");
-								System.out.println(subs);
-								out = this.vrhsh+String.valueOf(vrcnt);
-								vrcnt++;
-								inp = inp.replace(subs, out);
-								ind = k+1;
-							}
-							else if (org.charAt(k)=='=')
-							{
-								subs = org.substring(ind, k);
-								subs = subs.replace(" ", "");
-								out = this.vrhsh + String.valueOf(vrcnt);
-								vrcnt++;
-								inp = inp.replace(subs, out);
-								for (j = k;j < len;j++)
-									if (org.charAt(j)==',')
-									{
-										ind = j+1;
-										k = ind;
-									}
-									else if (org.charAt(j)==';')
-										break;
-							}
-							else if (org.charAt(k)==';')
-							{
-								subs = org.substring(ind, k);
-								subs = subs.replace(" ", "");
-								//System.out.println(subs);
-								out = this.vrhsh+String.valueOf(vrcnt);
-								vrcnt++;
-								inp = inp.replace(subs, out);
-								break;
-							}
+						if (org.charAt(ind+1)!='#') {
+							for (j=ind;j<len;j++)
+								if (org.charAt(j)==';')
+									break;
+							//System.out.println(org.substring(ind, j+1));
+							inp = this.renprimvarENG(inp, org.substring(ind,j+1));
 						}
-						}//prog = this.renvar(prog);
 						else 
-							k = ind;
-						org = org.substring(k+1, len-k-1);
+							j = ind;
+						org = org.substring(j+1, len-j-1);
 						
 					}
 				}while (ind!=-1);
 		}
 		return inp;
-	
+	}
+	private String renprimvarENG(String inp, String sstr)
+	{
+		boolean trip =false;
+		if (sstr.charAt(0)==32)
+			trip=true;
+		sstr = sstr.replace(" ", "");
+		String subs, out;
+		int i=0,coma,end = sstr.length();
+		if (sstr.charAt(0)=='[')
+			{i+=2;
+			trip = true;
+			}
+		coma = i;
+		if (trip) {
+			//System.out.println(sstr);
+		for (;i<end;i++)
+		{
+			if (sstr.charAt(i)=='['||sstr.charAt(i)==']')
+				{
+				subs = sstr.substring(coma, i);
+				out = this.vrhsh+String.valueOf(vrcnt);
+				vrcnt++;
+				//System.out.println(subs+" "+out);
+				inp = inp.replace(subs, out);
+				coma=i+2;
+				i++;
+				}
+			else if (sstr.charAt(i)==',')
+			{
+				subs = sstr.substring(coma, i);
+				out = this.vrhsh+String.valueOf(vrcnt);
+				vrcnt++;
+				inp = inp.replace(subs, out);
+				coma=i+1;
+			}
+			else if (sstr.charAt(i)=='=')
+			{
+				if (coma<i) {
+				subs = sstr.substring(coma, i);
+				out = this.vrhsh+String.valueOf(vrcnt);
+				vrcnt++;
+				inp = inp.replace(subs, out);
+				}
+				if (sstr.charAt(i+1)=='{')
+					while (sstr.charAt(i)!='}')
+						i++;
+				while (i<end)
+				{
+					if (sstr.charAt(i)==','||sstr.charAt(i)==';')
+						{
+						coma = i+1;
+						break;
+						}
+					i++;
+				}
+						
+			}
+			if (sstr.charAt(i)==';')
+			{
+				if (coma<i) {
+				subs = sstr.substring(coma, i);
+				out = this.vrhsh+String.valueOf(vrcnt);
+				vrcnt++;
+				inp = inp.replace(subs, out);
+				}
+				break;
+			}
+				
+		}
+		}
+		return inp;
+		
+	}
+	private String renamecompvar(String inp)
+	{
+		return inp;
 	}
 	private boolean isValidChar(char inp)
 	{
