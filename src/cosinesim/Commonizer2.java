@@ -41,6 +41,7 @@ public class Commonizer2 {
 			e.printStackTrace();
 		}
 		
+		
 	}
 	private String operations(String prog)
 	{
@@ -50,8 +51,8 @@ public class Commonizer2 {
 		prog = this.rmextrasp(prog);
 		prog = this.trimmer(prog);
 		prog = this.classmod(prog);
-		//prog = this.renvar(prog);
 		prog = this.methmod(prog);
+		prog = this.renprimvar(prog);
 		return prog;
 	}
 	private String removenlines(String inp)
@@ -163,7 +164,7 @@ public class Commonizer2 {
 		String nme = "", typ="";
 		String types[] = {"void", "boolean", "int", "String", "float", "double", "Void", "Boolean", "Integer", "Long"
 				, "BigInteger", "short", "char", "boolean", "long"};
-		while (pos>-1)
+		while (pos>-1&&this.stoppoints(inp.charAt(pos))!=true)
 		{
 			if (inp.charAt(pos)==32) {
 				if (spval == 1)
@@ -173,7 +174,9 @@ public class Commonizer2 {
 			}
 			else if(idfn2) {
 				spval = 1;
+				if (this.isValidChar(inp.charAt(pos)))
 				nme = inp.charAt(pos)+nme;
+				
 			}
 			else {
 				spval = 2;
@@ -181,7 +184,6 @@ public class Commonizer2 {
 			}
 			pos--;
 		}
-		System.out.println(nme+" "+typ);
 		for (i=0;i<11;i++)
 			if (typ.equals(types[i]))
 			{
@@ -201,10 +203,8 @@ public class Commonizer2 {
 		while (true) {
 			len = org.length();
 			ind = org.indexOf('(');
-			System.out.println(len);
 			if (ind!=-1) {
 			idf = this.mtname(org, --ind);
-			System.out.println(idf);
 			if (!idf.equals("#INV")) {
 			nnme = this.mhsh + String.valueOf(mcnt);
 			inp = inp.replace(idf, nnme);
@@ -276,11 +276,11 @@ public class Commonizer2 {
 		String out = inp.substring(0, pos) + inp.substring(pos+1, len);
 		return out;
 	}
-	private String renvar(String inp)
+	private String renprimvar(String inp)
 	{
 		String subs,out,org=inp;
 		int len, ind,i,j,k;
-		String dattyp[]= {"int", "byte", "long", "double", "float", "short", "char", "boolean", "String"};
+		String dattyp[]= {"int ", "byte ", "long ", "double ", "float ", "short ", "char ", "boolean ", "String "};
 		for (i=0;i<9;i++)
 		{
 				do {
@@ -288,32 +288,49 @@ public class Commonizer2 {
 					len = org.length();
 					if (ind!=-1)
 					{
-						for (j=ind;j<len;j++)
-							if (org.charAt(j)==32)
-								break;
-						for (k=j+1;j<len;k++)
+						ind+=dattyp[i].length();
+						if (org.charAt(ind)!='#') {
+						for (k=ind;k<len;k++)
 						{
-							if (org.charAt(j)==','|| org.charAt(j)=='=') {
-								subs = org.substring(k, j);
-								if (subs.indexOf('#')!=-1) {
+							if (org.charAt(k)==',') {
+								subs = org.substring(ind, k);
 								subs = subs.replace(" ", "");
+								System.out.println(subs);
 								out = this.vrhsh+String.valueOf(vrcnt);
 								vrcnt++;
 								inp = inp.replace(subs, out);
-								}
+								ind = k+1;
 							}
-							else if (org.charAt(j)==';')
+							else if (org.charAt(k)=='=')
 							{
-								subs = org.substring(k, j);
-								if (subs.indexOf('#')!=-1) {
-								subs = org.replace(" ", "");
+								subs = org.substring(ind, k);
+								subs = subs.replace(" ", "");
+								out = this.vrhsh + String.valueOf(vrcnt);
+								vrcnt++;
+								inp = inp.replace(subs, out);
+								for (j = k;j < len;j++)
+									if (org.charAt(j)==',')
+									{
+										ind = j+1;
+										k = ind;
+									}
+									else if (org.charAt(j)==';')
+										break;
+							}
+							else if (org.charAt(k)==';')
+							{
+								subs = org.substring(ind, k);
+								subs = subs.replace(" ", "");
+								//System.out.println(subs);
 								out = this.vrhsh+String.valueOf(vrcnt);
 								vrcnt++;
 								inp = inp.replace(subs, out);
-								}
 								break;
 							}
 						}
+						}//prog = this.renvar(prog);
+						else 
+							k = ind;
 						org = org.substring(k+1, len-k-1);
 						
 					}
@@ -321,6 +338,20 @@ public class Commonizer2 {
 		}
 		return inp;
 	
+	}
+	private boolean isValidChar(char inp)
+	{
+		boolean trip = false;
+		if ((inp>64&&inp<91)||(inp>96&&inp<123)||(inp>47&&inp<58)||inp=='$'||inp=='_')
+			trip=true;
+		return trip;
+	}
+	private boolean stoppoints(char inp)
+	{
+		boolean trip = false;
+		if (inp=='{'||inp=='}'||inp=='('||inp==')'||inp==';')
+			trip = true;
+		return trip;
 	}
 
 }
