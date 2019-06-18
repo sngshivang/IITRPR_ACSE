@@ -147,7 +147,7 @@ public class Commonizer2 {
 			else if (org.charAt(i)=='}')
 				brcnt--;
 		}
-		inp = inp.replace(idfr,nnme);
+		inp = AdvSubstring.replace(inp,idfr,nnme);
 		org = org.substring(end, len-end);
 		}
 		else 
@@ -207,7 +207,7 @@ public class Commonizer2 {
 			idf = this.mtname(org, --ind);
 			if (!idf.equals("#INV")) {
 			nnme = this.mhsh + String.valueOf(mcnt);
-			inp = inp.replace(idf, nnme);
+			inp = AdvSubstring.replace(inp,idf, nnme);
 			mcnt++;
 			}
 			/*for (i=0;i<end;i++)
