@@ -278,8 +278,8 @@ public class Commonizer2 {
 	}
 	private String renprimvar(String inp)
 	{
-		String subs,out,org=inp;
-		int len, ind,i,j,k;
+		String org=inp;
+		int len, ind,i,j;
 		String dattyp[]= {"int", "byte", "long", "double", "float", "short", "char", "boolean", "String"};
 		for (i=0;i<9;i++)
 		{
@@ -329,6 +329,8 @@ public class Commonizer2 {
 				vrcnt++;
 				//System.out.println(subs+" "+out);
 				inp = inp.replace(subs, out);
+				inp = AdvSubstring.replace(inp, subs, out);
+				
 				coma=i+2;
 				i++;
 				}
@@ -337,7 +339,7 @@ public class Commonizer2 {
 				subs = sstr.substring(coma, i);
 				out = this.vrhsh+String.valueOf(vrcnt);
 				vrcnt++;
-				inp = inp.replace(subs, out);
+				inp = AdvSubstring.replace(inp, subs, out);
 				coma=i+1;
 			}
 			else if (sstr.charAt(i)=='=')
@@ -346,7 +348,7 @@ public class Commonizer2 {
 				subs = sstr.substring(coma, i);
 				out = this.vrhsh+String.valueOf(vrcnt);
 				vrcnt++;
-				inp = inp.replace(subs, out);
+				inp = AdvSubstring.replace(inp, subs, out);
 				}
 				if (sstr.charAt(i+1)=='{')
 					while (sstr.charAt(i)!='}')
@@ -368,7 +370,7 @@ public class Commonizer2 {
 				subs = sstr.substring(coma, i);
 				out = this.vrhsh+String.valueOf(vrcnt);
 				vrcnt++;
-				inp = inp.replace(subs, out);
+				inp = AdvSubstring.replace(inp, subs, out);
 				}
 				break;
 			}
