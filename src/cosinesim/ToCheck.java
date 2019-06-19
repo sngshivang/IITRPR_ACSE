@@ -1,12 +1,15 @@
 package cosinesim;
 
+import java.util.StringTokenizer;
+
 public class ToCheck {
 	public static void main(String args[])
 	{
-		String inp = "hello my name is shivang but is a different shivang";
-		String pat = "shivang";
-		String sak = "sakshi";
-		String out = AdvSubstring.replace(inp, pat, sak);
-		System.out.println(out);
+		String a = "int a= 2;";
+		StringTokenizer tk = new StringTokenizer(a);
+		while(tk.hasMoreTokens())
+		{
+			System.out.println(tk.nextToken());
+		}
 	}
 }

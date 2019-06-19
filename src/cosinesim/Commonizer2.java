@@ -52,7 +52,8 @@ public class Commonizer2 {
 		prog = this.trimmer(prog);
 		prog = this.classmod(prog);
 		prog = this.methmod(prog);
-		prog = this.renprimvar(prog);
+		prog = this.equalsuniv(prog);
+		//prog = this.renprimvar(prog);
 		return prog;
 	}
 	private String removenlines(String inp)
@@ -380,8 +381,47 @@ public class Commonizer2 {
 		return inp;
 		
 	}
-	private String renamecompvar(String inp)
+	private String equalsuniv(String inp)
 	{
+		String org=inp,part,out;
+		boolean trip =false;
+		int len, ind,i,j;
+			do {
+					ind = org.indexOf('=');
+					len = org.length();j=ind;
+					if (ind!=-1)
+					{
+						ind--;
+						if (org.charAt(ind)==32)
+							ind--;
+						if (org.charAt(ind)==']')
+							{
+							if (org.charAt(ind-1)==32)
+								ind-=3;
+							else
+								ind-=2;
+							}
+						if (org.charAt(ind)==32)
+							ind--;
+						part = "";
+						while (Character.isJavaIdentifierPart(org.charAt(ind)))
+						{
+							part = Character.toString(org.charAt(ind))+part;
+							ind--;
+							if (org.charAt(ind)=='#')
+								trip = true;
+						}
+						if (!trip)
+						{
+							out = this.vrhsh+String.valueOf(vrcnt);
+							vrcnt++;
+							inp = AdvSubstring.replace(inp, part, out);
+						}
+						
+						org = org.substring(j+1, len-j-1);
+						
+					}
+				}while (ind!=-1);
 		return inp;
 	}
 	private boolean isValidChar(char inp)
