@@ -12,12 +12,23 @@ public class AdvSubstring {
 		inpo = inp;
 		torepc = torep;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp);
+		adv.KMPSearch(ori, inp, false);
 		inpo = inpo.substring(1, inpo.length()-1);
 		return inpo;
 		
 	}
-	void KMPSearch(String pat, String txt) //Used from GeeksForGeeks.org
+	public static String replaceFirst(String inp, String ori, String torep)
+	{
+		inp = " "+inp+" ";
+		trlen = ori.length();
+		inpo = inp;
+		torepc = torep;
+		AdvSubstring adv = new AdvSubstring();
+		adv.KMPSearch(ori, inp, true);
+		inpo = inpo.substring(1, inpo.length()-1);
+		return inpo;
+	}
+	void KMPSearch(String pat, String txt, boolean trip) //Used from GeeksForGeeks.org
     { 
 		String temp1,temp2;
         int M = pat.length(),beg,end; 
@@ -47,6 +58,8 @@ public class AdvSubstring {
                 	temp2 = Character.toString(txt.charAt(beg-1))+torepc+Character.toString(txt.charAt(end));
                 	inpo = inpo.replace(temp1, temp2);
                 }
+                if (trip)
+                	break;
                 j = lps[j - 1]; 
             } 
   
