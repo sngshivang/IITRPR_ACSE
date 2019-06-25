@@ -200,7 +200,8 @@ public class Structuring {
 			System.out.println("key : " + key);
 			System.out.println("value : " + blmp.get(key));
 		}*/
-		return univ;
+		test = this.tmpresolve(test);
+		return test;
 	}
 	protected String removenlines(String inp)
 	{

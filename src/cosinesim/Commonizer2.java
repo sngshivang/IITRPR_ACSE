@@ -39,7 +39,7 @@ public class Commonizer2 {
 	}
 	protected static String equalsuniv(String inp, String pref)
 	{
-		System.out.println(inp);
+		//System.out.println(inp);
 		String vrhsh = pref+"_"+"#v";
 		String org=inp,part,out;
 		Commonizer2 cm = new Commonizer2();
@@ -96,7 +96,7 @@ public class Commonizer2 {
 							inp = AdvSubstring.replace(inp, part, out);
 						}
 					}
-					org = org.substring(j+1, len-j-1);
+					org = org.substring(j+1, len);
 					//System.out.println(ind);
 				}while (ind!=-1);
 		return inp;
