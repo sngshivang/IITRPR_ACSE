@@ -1,5 +1,6 @@
-//There was some problem with the AdvancedSubstring algo. Please check
-//Parameters where array may be used. Requires attention.
+/*There was some problem with the AdvancedSubstring algo. Please check
+Parameters where array may be used. Requires attention.
+Text replacement algorithm must rectify the issues with escape sequences*/ 
 package cosinesim;
 
 import java.io.BufferedInputStream;
@@ -57,8 +58,8 @@ public class Structuring {
 	
 	public String structures(String inp, String pref)
 	{
-		int len,i,ind,ind1,ind2,k,cnt=10;
-		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[];
+		int len,i,ind,ind1,ind2,k,cnt=10,bc,bo;
+		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[],sstr3;
 		cnt--;
 		do
 		{
@@ -128,8 +129,10 @@ public class Structuring {
 						i--;
 					if (i>-1&&sstr.charAt(i)==')')
 					{
+						bc = i;
 					while (i>-1&&sstr.charAt(i)!='(')
 						i--;
+					bo = i;
 					i--;
 					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
 						i--;
@@ -140,7 +143,12 @@ public class Structuring {
 					//System.out.println(temp[1]+" "+temp[2]);
 					if (!temp[0].equals("$INV"))
 					{
+						sstr2 = sstr.substring(bo, bc+1);
+						sstr3 = this.parnormal(sstr2, 0, pref);
+						//sstr2 = sstr2.substring(1, sstr2.length()-1);
+						//sstr3 = sstr3.substring(1, sstr3.length()-1);
 						inpc = AdvSubstring.replaceFirst(inpc, temp[1], temp[2]);
+						inpc = inpc.replace(sstr2, sstr3);
 					}
 					}
 					else if (i>-1){
@@ -201,6 +209,9 @@ public class Structuring {
 			System.out.println("value : " + blmp.get(key));
 		}*/
 		test = this.tmpresolve(test);
+		test = this.removehash(test);
+		test = this.redotext(test);
+		test = this.addnewline(test);
 		return test;
 	}
 	protected String removenlines(String inp)
@@ -232,23 +243,45 @@ public class Structuring {
 	protected String textrepo(String inp)
 	{
 		int ind, eind, esc;
-		String deft = "$TEX$T",phr;
+		String deft,phr;
 		char apos = 34;
 		do {
 			ind = inp.indexOf(apos);
 			if (ind!=-1)
 			{
+				deft = "$TEX$T";
 				eind = inp.indexOf(apos,ind+1);
 				deft+=String.valueOf(nfree);
 				phr = inp.substring(ind,eind+1);
 				txtdat.add(phr);
 				nfree++;
 				inp = inp.replace(phr, deft);
-				//esc = inp.indexOf("\"",ind);
-				deft = "$TEX$T";
 				
 			}
 		}while(ind!=-1);
+		return inp;
+	}
+	protected String redotext(String inp)
+	{
+		String pat = "$TEX$T",tmp, out;
+		int  len, ind, ky, eind;
+		do {
+			len = inp.length();
+			tmp = "";
+			ind = inp.indexOf(pat);
+			if (ind!=-1)
+			{
+				eind  = ind + 6;
+				while (ind<len&&(inp.charAt(eind)>47&&inp.charAt(eind)<58))
+				{
+					tmp+=String.valueOf(inp.charAt(eind));
+					eind++;
+				}
+				ky = Integer.valueOf(tmp);
+				out = txtdat.get(ky);
+				inp = inp.replace(pat+tmp, out);
+			}
+		}while (ind!=-1);
 		return inp;
 	}
 	protected String trimmer(String inp)
@@ -295,6 +328,20 @@ public class Structuring {
 		}
 		return inp;
 		
+	}
+	protected String addnewline(String inp)
+	{
+		int len = inp.length(),i;
+		String out="";
+		for (i=0;i<len;i++)
+		{
+			out+=String.valueOf(inp.charAt(i));
+			if (inp.charAt(i)==';')
+				out+="\n";
+			else if (i>1&&inp.charAt(i)=='{'&&!(inp.charAt(i-1)=='='||inp.charAt(i-2)=='='))
+				out+="\n";
+		}
+		return out;
 	}
 	protected String[] classnormal(String inp, String pref)
 	{
@@ -388,9 +435,9 @@ public class Structuring {
 						if (!trip&&!trip2)
 						{
 							out = this.mhsh+String.valueOf(mcnt);
-								this.parnormal(org, j);
 								//metmp.put(pref, true);
 								pref = pref + "_" + out;
+								//this.parnormal(org, j, pref);
 								mcnt++;
 								send[0] = out;
 								send[1] = part;
@@ -408,16 +455,17 @@ public class Structuring {
 					send[2] =  pref;
 				return send;
 	}
-	protected void parnormal(String inp, int l)
+	protected String parnormal(String inp, int l, String pref)
 	{
-		int sze,r=0,i;
+		int sze,r=0,i,pcnt=0;
 		for (i=l+1;i<inp.length();i++)
 			if (inp.charAt(i)==')')
 			{
 				r = i;
 				break;
 			}
-		String itok,out, org = inp.substring(l+1,r);
+		String itok,out, org = inp.substring(l+1,r), tmp;
+		org = this.parpreproc(org);
 		StringTokenizer st = new StringTokenizer(org),st2;
 		Vector <String> vt = new Vector<>(),vt2 = new Vector<>();
 		while (st.hasMoreTokens())
@@ -433,14 +481,41 @@ public class Structuring {
 			}
 			sze = vt2.size();
 			//System.out.println(sze);
-			if (sze==2)
-			{
-				out = this.phsh+String.valueOf(pcnt);
-				pcnt++;
-				univ = AdvSubstring.replace(univ, vt2.get(1), out);
-			}
+			out = this.phsh+String.valueOf(pcnt);
+			tmp = pref + "_" + out;
+			pcnt++;
+			inp = AdvSubstring.replace(inp, vt2.get(sze-1), tmp);
 			vt2.clear();
 		}
+		return inp;
+	}
+	protected String parpreproc(String inp)
+	{
+		int len = inp.length(),ind,i;String tmp;
+		do
+		{
+			ind = inp.indexOf('[');
+			if (ind!=-1)
+			{
+				i = ind+1;
+				while (inp.charAt(i)!=']')
+					i++;
+				tmp = inp.substring(ind, i+1);
+				inp = inp.replace(tmp, "");
+			}
+		}while (ind!=-1);
+		return inp;
+	}
+	protected String removehash(String inp)
+	{
+		int len = inp.length(),i;
+		String out="";
+		for (i=0;i<len;i++)
+		{
+			if (inp.charAt(i)!='#')
+				out+=String.valueOf(inp.charAt(i));
+		}
+		return out;
 	}
 	protected boolean stoppoints(char inp)
 	{
@@ -468,9 +543,5 @@ public class Structuring {
 		if ((inp>64&&inp<91)||(inp>96&&inp<123))
 			trip=true;
 		return trip;
-	}
-	protected void infotransfer()
-	{
-		
 	}
 }
