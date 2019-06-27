@@ -39,9 +39,11 @@ public class Commonizer2 {
 	}
 	protected static String equalsuniv(String inp, String pref)
 	{
-		//System.out.println(inp);
+		Map <String, String> locmp = new HashMap<>();
+	    if (Structuring.mptv.get(pref)!=null)
+			locmp = Structuring.mptv.get(pref);
 		String vrhsh = pref+"_"+"#v";
-		String org=inp,part,out;
+		String org=inp,part,out,ky,lval;
 		Commonizer2 cm = new Commonizer2();
 		char temp;
 		boolean trip =false,skip;
@@ -99,6 +101,14 @@ public class Commonizer2 {
 					org = org.substring(j+1, len);
 					//System.out.println(ind);
 				}while (ind!=-1);
+			for (Map.Entry<String,String> entry : locmp.entrySet())
+			{
+				ky = entry.getKey();
+				lval = entry.getValue(); 
+				//System.out.println(ky+" "+lval);
+				inp = AdvSubstring.replace(inp, ky, lval);
+			}
+			//locmp.clear();
 		return inp;
 	}	
 }

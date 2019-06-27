@@ -1,6 +1,7 @@
 /*There was some problem with the AdvancedSubstring algo. Please check
 Parameters where array may be used. Requires attention.
-Text replacement algorithm must rectify the issues with escape sequences*/ 
+Text replacement algorithm must rectify the issues with escape sequences
+WARNING- Development still under BETA- Output might be unintended or completely off the mark. */ 
 package cosinesim;
 
 import java.io.BufferedInputStream;
@@ -17,8 +18,8 @@ public class Structuring {
 	static Vector<String> txtdat;
 	String hash = "#c", phsh = "#p", univ;
 	String mhsh = "#m";
-	static Map <String, Boolean> metmp;
 	static Map <String, String> blmp,clmp;
+	static Map <String, Map <String,String>> mptv;
 	String vrhsh = "#v";
 	static Stack <String> st;
 	int cls=0, pcnt=0, icnt=0;
@@ -43,7 +44,7 @@ public class Structuring {
 		st = new Stack<>();
 		cm = new Commonizer2();
 		clmp = new HashMap<>();
-		metmp = new HashMap<>();
+		mptv = new HashMap<>();
 		blmp = new HashMap<>();
 		Structuring st = new Structuring();
 		prog = st.single_opers(prog);
@@ -144,9 +145,7 @@ public class Structuring {
 					if (!temp[0].equals("$INV"))
 					{
 						sstr2 = sstr.substring(bo, bc+1);
-						sstr3 = this.parnormal(sstr2, 0, pref);
-						//sstr2 = sstr2.substring(1, sstr2.length()-1);
-						//sstr3 = sstr3.substring(1, sstr3.length()-1);
+						sstr3 = this.parnormal(sstr2, 0, pref ,temp[2]);
 						inpc = AdvSubstring.replaceFirst(inpc, temp[1], temp[2]);
 						inpc = inpc.replace(sstr2, sstr3);
 					}
@@ -212,7 +211,14 @@ public class Structuring {
 		test = this.removehash(test);
 		test = this.redotext(test);
 		test = this.addnewline(test);
+		this.cleanup();
 		return test;
+	}
+	protected void cleanup()
+	{
+		mptv.clear();
+		blmp.clear();
+		clmp.clear();
 	}
 	protected String removenlines(String inp)
 	{
@@ -272,14 +278,15 @@ public class Structuring {
 			if (ind!=-1)
 			{
 				eind  = ind + 6;
-				while (ind<len&&(inp.charAt(eind)>47&&inp.charAt(eind)<58))
+				while (eind<len&&(inp.charAt(eind)>47&&inp.charAt(eind)<58))
 				{
 					tmp+=String.valueOf(inp.charAt(eind));
 					eind++;
 				}
+				//System.out.println(tmp);
 				ky = Integer.valueOf(tmp);
 				out = txtdat.get(ky);
-				inp = inp.replace(pat+tmp, out);
+				inp = AdvSubstring.replace(inp,pat+tmp, out);
 			}
 		}while (ind!=-1);
 		return inp;
@@ -363,7 +370,7 @@ public class Structuring {
 						{
 							part = Character.toString(org.charAt(ind))+part;
 							ind--;
-							if (org.charAt(ind)=='#')
+							if (ind>-1&&org.charAt(ind)=='#')
 								{trip = true;
 								ind--;
 								break;
@@ -423,16 +430,16 @@ public class Structuring {
 						{
 							part = Character.toString(org.charAt(ind))+part;
 							ind--;
-							if (org.charAt(ind)=='#')
+							if (ind>-1&&org.charAt(ind)=='#')
 								{
 								trip = true;
 								ind--;
 								break;
 								}
 						}
-						if (org.charAt(ind)!=32)
+						if (ind<0||org.charAt(ind)!=32)
 							trip2=true;
-						if (!trip&&!trip2)
+						if (!trip&&!trip2&&!KeywordCheck.chk(part))
 						{
 							out = this.mhsh+String.valueOf(mcnt);
 								//metmp.put(pref, true);
@@ -455,8 +462,9 @@ public class Structuring {
 					send[2] =  pref;
 				return send;
 	}
-	protected String parnormal(String inp, int l, String pref)
+	protected String parnormal(String inp, int l, String pref, String met)
 	{
+		Map <String, String> mp1 = new HashMap<>();
 		int sze,r=0,i,pcnt=0;
 		for (i=l+1;i<inp.length();i++)
 			if (inp.charAt(i)==')')
@@ -484,9 +492,12 @@ public class Structuring {
 			out = this.phsh+String.valueOf(pcnt);
 			tmp = pref + "_" + out;
 			pcnt++;
+			mp1.put(vt2.get(sze-1), tmp);
 			inp = AdvSubstring.replace(inp, vt2.get(sze-1), tmp);
 			vt2.clear();
 		}
+		if (!mp1.isEmpty()) 
+		mptv.put(met, mp1);
 		return inp;
 	}
 	protected String parpreproc(String inp)
@@ -543,5 +554,10 @@ public class Structuring {
 		if ((inp>64&&inp<91)||(inp>96&&inp<123))
 			trip=true;
 		return trip;
+	}
+	protected void printout()
+	{
+		
+		System.out.println(mptv);
 	}
 }
