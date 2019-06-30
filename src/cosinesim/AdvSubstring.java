@@ -5,6 +5,7 @@ public class AdvSubstring {
 	static int trlen;
 	static String inpo;
 	static String torepc;
+	static int found;
 	public static String replace(String inp, String ori, String torep)
 	{
 		inp = " "+inp+" ";
@@ -12,7 +13,7 @@ public class AdvSubstring {
 		inpo = inp;
 		torepc = torep;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp, false);
+		adv.KMPSearch(ori, inp, false, false);
 		inpo = inpo.substring(1, inpo.length()-1);
 		return inpo;
 		
@@ -24,11 +25,11 @@ public class AdvSubstring {
 		inpo = inp;
 		torepc = torep;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp, true);
+		adv.KMPSearch(ori, inp, true, false);
 		inpo = inpo.substring(1, inpo.length()-1);
 		return inpo;
 	}
-	void KMPSearch(String pat, String txt, boolean trip) //Used from GeeksForGeeks.org
+	void KMPSearch(String pat, String txt, boolean trip, boolean trip2) //Used from GeeksForGeeks.org
     { 
 		String temp1,temp2;
         int M = pat.length(),beg,end; 
@@ -56,7 +57,13 @@ public class AdvSubstring {
                 {
                 	temp1 = Character.toString(txt.charAt(beg-1))+pat+Character.toString(txt.charAt(end));
                 	temp2 = Character.toString(txt.charAt(beg-1))+torepc+Character.toString(txt.charAt(end));
+                	if (!trip2)
                 	inpo = inpo.replace(temp1, temp2);
+                	else 
+                	{
+                		found=beg;
+                		break;
+                	}
                 }
                 if (trip)
                 	break;
@@ -108,5 +115,14 @@ public class AdvSubstring {
             } 
         } 
     } 
-
+    protected static int find(String inp, String ori)
+    {
+    	found = -1;
+    	inp = " "+inp+" ";
+		trlen = ori.length();
+		inpo = inp;;
+		AdvSubstring adv = new AdvSubstring();
+		adv.KMPSearch(ori, inp, true, true);;
+		return found;
+    }
 }

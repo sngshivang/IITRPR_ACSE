@@ -5,58 +5,114 @@ WARNING- Development still under BETA- Output might be unintended or completely 
 package cosinesim;
 
 import java.io.BufferedInputStream;
-import java.io.File;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.util.Vector;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Structuring {
 	static Vector<String> txtdat;
-	String hash = "#c", phsh = "#p", univ;
-	String mhsh = "#m";
-	static Map <String, String> blmp,clmp;
+	static Set <String> pendvar;
+	String hash = "#c", phsh = "#p", univ, mhsh = "#m", vrhsh = "#v";;
+	static Map <String, String> blmp,clmp,reschar;
 	static Map <String, Map <String,String>> mptv;
-	String vrhsh = "#v";
 	static Stack <String> st;
-	int cls=0, pcnt=0, icnt=0;
-	int mcnt=0,vrcnt=0;
-	static int nfree;
+	int cls=0, pcnt=0, icnt=0, mcnt=0,vrcnt=0, nfree;
 	static Commonizer2 cm;
 	public static void main(String args[])
 	{
-		int len;txtdat = new Vector<String>();
-		nfree = 0;
-		String prog="";
+		cm = new Commonizer2();
+		boolean trip =true;int len;
+		FileInputStream fl;
+		Structuring str = new Structuring();
+		if (args.length!=2 && args.length!=3)
+		{
+			str.printinfo();
+		}
+		else {
+		txtdat = new Vector<String>();
+		String prog="", pathspl[]= {"$INV","$INV"};
 		try {
-		FileInputStream fl = new FileInputStream("/home/shivang/Desktop/example.java");
-		File out = new File("/home/shivang/Desktop/output.java");
+		fl = new FileInputStream(args[0]);
 		BufferedInputStream bfs = new BufferedInputStream(fl);
+		pathspl = str.inpfilename(args[0]);
 		byte bt[] = new byte[8192];
 		while ((len = bfs.read(bt))!=-1)
-		{
-			prog+=new String(bt);
-		}
+		prog+=new String(bt, 0, len, "UTF-8");
 		bfs.close();
+		}
+		catch(Exception e)
+		{
+			trip = false;
+			System.out.println("The specified input filename is not found. Please check the file path.");
+		}
+		
 		st = new Stack<>();
-		cm = new Commonizer2();
+		clmp = new HashMap<>();
+		mptv = new HashMap<>();
+		reschar = new HashMap<>();
+		blmp = new HashMap<>();
+		pendvar = new HashSet<>();
+		prog = str2ret(prog);
+		if (args[1].equals("CON") && trip)
+		System.out.print(prog);
+		else if (args[1].equals("FILE") && trip)
+		{
+			if (args.length==2){
+				pathspl[0] = pathspl[0].substring(0, pathspl[0].length()-5);
+				pathspl[0] = pathspl[1]+pathspl[0]+"_nrml.java";
+			}
+			else if (args.length==3)
+				{
+				pathspl[0] = pathspl[0].substring(0, pathspl[0].length()-5);
+				pathspl[0] = args[2]+pathspl[0]+"_nrml.java";
+				}
+			try {
+				FileOutputStream fl1 = new FileOutputStream(pathspl[0]);
+				BufferedOutputStream bfis = new BufferedOutputStream(fl1);
+				for (int i=0;i<prog.length();i++)
+					{
+					bfis.write(prog.charAt(i));
+					}
+				bfis.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				System.out.println("Cannot create the output file in the directory where the source file is located.\nPlease check your permissions or add your own directory as a third argument");
+			}
+		}
+		
+		}
+		
+	}
+	public static String str2ret(String inp)
+	{
+		txtdat = new Vector<String>();
+		st = new Stack<>();
 		clmp = new HashMap<>();
 		mptv = new HashMap<>();
 		blmp = new HashMap<>();
 		Structuring st = new Structuring();
-		prog = st.single_opers(prog);
-		System.out.print(prog);
-		}
-		catch(Exception e)
+		try {
+			return st.single_opers(inp);
+		}catch(Exception e)
 		{
 			e.printStackTrace();
+			System.out.println("NORMALIZATION FAILED!\nThe program failed to normalize the give code. This may be due to an erroneous code. Please make sure your source code is in Java and can be compiled.");
+			System.out.println("If that fails, there may be an issue with the BETA version of this software your are using.\nPlease report the issue to the developer on the program's github page");
+			return "ERR";
 		}
-		
 	}
-	
 	public String structures(String inp, String pref)
 	{
 		int len,i,ind,ind1,ind2,k,cnt=10,bc,bo;
@@ -107,10 +163,10 @@ public class Structuring {
 					//System.out.println("PREF:"+ pref);
 					block = sstr.substring(0, ind2);
 					sstr = "{"+block+"}";
-					sstr2 = this.tmpresolve(sstr);
-					sstr2 = Commonizer2.equalsuniv(sstr2, pref);
+					sstr2 = tmpresolve(sstr);
+					sstr2 = Commonizer2.equalsuniv(sstr2, pref, sstr);
 					//System.out.println(sstr2);
-					inv = "$IGNORE"+String.valueOf(icnt);
+					inv = "$IGNORE"+String.valueOf(icnt)+"$";
 					icnt++;
 					st.push(inv);
 					blmp.put(inv, sstr2);
@@ -169,7 +225,7 @@ public class Structuring {
 		//System.out.println("Exit");
 		return inpc;
 	}
-	protected String tmpresolve(String inp)
+	protected static String tmpresolve(String inp)
 	{
 		int ind,i,len;char ch;String num,fnd;
 		do
@@ -185,7 +241,7 @@ public class Structuring {
 				else
 					break;
 			}
-			num = "$IGNORE"+num;
+			num = "$IGNORE"+num+"$";
 			if (blmp.get(num)!=null)
 			{
 				fnd = blmp.get(num);
@@ -195,6 +251,60 @@ public class Structuring {
 		}while (ind!=-1);
 		return inp;
 	}
+	protected void printinfo()
+	{
+		System.out.println("------Java Source Code Normalizer------");
+		System.out.println("Missing Arguments: Program expects at least two arguments");
+		System.out.println("Usage: JavaNormalizer.jar [Source File] [Output type] [Destination File (o)])");
+		System.out.println("\nOptions\n");
+		System.out.println("Source: Valid input filepath");
+		System.out.println("Output type : CON/FILE\n\tCON prints output on the console. Omit third argument when this option is used");
+		System.out.println("\tFILE prints output to the specified destination file. Requires third argument");
+		System.out.println("Destination File: The destination file path when second argument is FILE");
+	}
+	protected String represvchar(String inp)
+	{
+		String key, val;
+		reschar.put("$RESV0$", "'{'");
+		reschar.put("$RESV1$", "'}'");
+		reschar.put("$RESV2$", "'('");
+		reschar.put("$RESV3$", "')'");
+		reschar.put("$RESV4$", "';'");
+		for (Map.Entry<String, String> tmp : reschar.entrySet())
+		{
+			key = tmp.getKey();
+			val = tmp.getValue();
+			inp = inp.replace(val, key);
+		}
+		return inp;
+	}
+	protected String redoresvchar(String inp)
+	{
+		String key, val;
+		for (Map.Entry<String, String> tmp : reschar.entrySet())
+		{
+			key = tmp.getKey();
+			val = tmp.getValue();
+			inp = inp.replace(key, val);
+		}
+		return inp;
+	}
+	protected String[] inpfilename(String inp)
+	{
+		int len = inp.length(),i;
+		String out[] = new String[2];
+		out[0]="";
+		for (i=len-1;i>-1;i--)
+		{
+			if(inp.charAt(i)!='/'&&inp.charAt(i)!='\\')
+					out[0] = String.valueOf(inp.charAt(i))+out[0];
+			else 
+				break;
+					
+		}
+		out[1] = inp.substring(0, i+1);
+		return out;
+	}
 	protected String single_opers(String prog)
 	{
 		univ = this.textrepo(prog);
@@ -202,13 +312,15 @@ public class Structuring {
 		univ = this.removenlines(univ);
 		univ = this.rmextrasp(univ);
 		univ = this.trimmer(univ);
+		univ = this.represvchar(univ);
 		String test = this.structures(univ,"");
 		/*for (String key: blmp.keySet()) {
 			System.out.println("key : " + key);
 			System.out.println("value : " + blmp.get(key));
 		}*/
-		test = this.tmpresolve(test);
+		test = tmpresolve(test);
 		test = this.removehash(test);
+		test = this.redoresvchar(test);
 		test = this.redotext(test);
 		test = this.addnewline(test);
 		this.cleanup();
@@ -219,6 +331,7 @@ public class Structuring {
 		mptv.clear();
 		blmp.clear();
 		clmp.clear();
+		reschar.clear();
 	}
 	protected String removenlines(String inp)
 	{
@@ -269,7 +382,7 @@ public class Structuring {
 	}
 	protected String redotext(String inp)
 	{
-		String pat = "$TEX$T",tmp, out;
+		String pat = "$TEX$T",tmp, out, cp = inp, inp1;
 		int  len, ind, ky, eind;
 		do {
 			len = inp.length();
@@ -286,10 +399,13 @@ public class Structuring {
 				//System.out.println(tmp);
 				ky = Integer.valueOf(tmp);
 				out = txtdat.get(ky);
-				inp = AdvSubstring.replace(inp,pat+tmp, out);
+				inp1 = inp;
+				inp = AdvSubstring.replaceFirst(inp,pat+tmp, out);
+				cp = cp.replace(inp1, inp);
+				inp = inp.substring(ind+2,inp.length());
 			}
 		}while (ind!=-1);
-		return inp;
+		return cp;
 	}
 	protected String trimmer(String inp)
 	{
@@ -531,7 +647,7 @@ public class Structuring {
 	protected boolean stoppoints(char inp)
 	{
 		boolean trip = false;
-		if (inp=='{'||inp=='}'||inp=='('||inp==')'||inp==';')
+		if (inp=='{'||inp=='}'||inp=='('||inp==')'||inp==';'||inp=='$')
 			trip = true;
 		return trip;
 	}
