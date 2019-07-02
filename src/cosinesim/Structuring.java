@@ -115,7 +115,7 @@ public class Structuring {
 			return st.single_opers(inp);
 		}catch(Exception e)
 		{
-			//e.printStackTrace();
+			e.printStackTrace();
 			System.out.println("NORMALIZATION FAILED!\nThe program failed to normalize the give code. This may be due to an erroneous code. Please make sure your source code is in Java and can be compiled.");
 			System.out.println("If that fails, there may be an issue with the BETA version of this software your are using.\nPlease report the issue to the developer on the program's github page");
 			System.exit(1);
@@ -129,7 +129,7 @@ public class Structuring {
 		cnt--;
 		do
 		{
-			//System.out.println("PREF:"+ pref);
+			//System.out.println(inpc);
 			len = inpc.length();
 			ind = inpc.indexOf('{');
 			if (ind!=-1)
@@ -154,9 +154,9 @@ public class Structuring {
 					{
 					while (i>-1&&!this.stoppoints(inpc.charAt(i)))
 					i--;
-					//System.out.println(pref);
 					temp = this.classnormal(inpc.substring(i+1, ind+1), pref);
 					pref = temp[1];
+					//System.out.println(inpc);
 					if (!temp[0].equals("$INV")) {
 						inpc = AdvSubstring.replaceFirst(inpc, temp[0], temp[1]);
 						pref="";
@@ -181,7 +181,6 @@ public class Structuring {
 					blmp.put(inv, sstr2);
 					inpc = inpc.replace(sstr, inv) ;
 					//System.out.println(inpc);
-					//inpc = inpc.replace(sstr,inv);
 					//System.out.println(inpc);
 				}
 				else if (ind2==-1)
@@ -210,9 +209,9 @@ public class Structuring {
 					if (!temp[0].equals("$INV"))
 					{
 						sstr2 = sstr.substring(bo, bc+1);
-						sstr3 = this.parnormal(sstr2, 0, pref ,temp[2]);
+						sstr3 = this.parnormal(sstr2, 0, pref);
 						inpc = AdvSubstring.replaceFirst(inpc, temp[1], temp[2]);
-						inpc = inpc.replace(sstr2, sstr3);
+						inpc = AdvSubstring.nidreplaceFirst(inpc, sstr2, sstr3);
 					}
 					}
 					else if (i>-1){
@@ -393,7 +392,7 @@ public class Structuring {
 	protected String redotext(String inp)
 	{
 		String pat = "$TEX$T",tmp, out, cp = inp, inp1;
-		int  len, ind, ky, eind;
+		int  len, ind, ky, eind,rlen;
 		do {
 			len = inp.length();
 			tmp = "";
@@ -409,10 +408,12 @@ public class Structuring {
 				//System.out.println(tmp);
 				ky = Integer.valueOf(tmp);
 				out = txtdat.get(ky);
+				rlen = out.length();
 				inp1 = inp;
-				inp = AdvSubstring.replaceFirst(inp,pat+tmp, out);
+				inp = AdvSubstring.nidreplaceFirst(inp,pat+tmp, out);
 				cp = cp.replace(inp1, inp);
-				inp = inp.substring(ind+2,inp.length());
+				inp = inp.substring(ind+rlen,inp.length());
+				
 			}
 		}while (ind!=-1);
 		return cp;
@@ -588,8 +589,9 @@ public class Structuring {
 					send[2] =  pref;
 				return send;
 	}
-	protected String parnormal(String inp, int l, String pref, String met)
+	protected String parnormal(String inp, int l, String pref)
 	{
+		//System.out.println(pref);
 		Map <String, String> mp1 = new HashMap<>();
 		int sze,r=0,i,pcnt=0;
 		for (i=l+1;i<inp.length();i++)
@@ -623,7 +625,8 @@ public class Structuring {
 			vt2.clear();
 		}
 		if (!mp1.isEmpty()) 
-		mptv.put(met, mp1);
+		mptv.put(pref, mp1);
+		//System.out.println(mptv);
 		return inp;
 	}
 	protected String parpreproc(String inp)

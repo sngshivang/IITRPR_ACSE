@@ -8,12 +8,13 @@ public class AdvSubstring {
 	static int found;
 	public static String replace(String inp, String ori, String torep)
 	{
+		//System.out.println(torep);
 		inp = " "+inp+" ";
 		trlen = ori.length();
 		inpo = inp;
 		torepc = torep;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp, false, false);
+		adv.KMPSearch(ori, inp, false, false, false);
 		inpo = inpo.substring(1, inpo.length()-1);
 		return inpo;
 		
@@ -25,13 +26,22 @@ public class AdvSubstring {
 		inpo = inp;
 		torepc = torep;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp, true, false);
+		adv.KMPSearch(ori, inp, true, false, false);
 		inpo = inpo.substring(1, inpo.length()-1);
 		return inpo;
 	}
-	void KMPSearch(String pat, String txt, boolean trip, boolean trip2) //Used from GeeksForGeeks.org
+	public static String nidreplaceFirst(String inp, String ori, String torep)
+	{
+		trlen = ori.length();
+		inpo = inp;
+		torepc = torep;
+		AdvSubstring adv = new AdvSubstring();
+		adv.KMPSearch(ori, inp, true, false, true);
+		return inpo;
+	}
+	void KMPSearch(String pat, String txt, boolean trip, boolean trip2, boolean nid) //Used from GeeksForGeeks.org
     { 
-		String temp1,temp2;
+		String temp2,temp1;
         int M = pat.length(),beg,end; 
         int N = txt.length(); 
   
@@ -53,20 +63,29 @@ public class AdvSubstring {
             if (j == M) { 
                 beg = i-j;
                 end = beg+trlen;
-                if (!Character.isJavaIdentifierPart(txt.charAt(beg-1))&&!Character.isJavaIdentifierPart(txt.charAt(end)))
+                if (!nid&&this.check(txt, beg, end))
                 {
                 	temp1 = Character.toString(txt.charAt(beg-1))+pat+Character.toString(txt.charAt(end));
                 	temp2 = Character.toString(txt.charAt(beg-1))+torepc+Character.toString(txt.charAt(end));
-                	if (!trip2)
-                	inpo = inpo.replace(temp1, temp2);
-                	else 
+                	if (!trip2&&!trip) 
+                		inpo = inpo.replace(temp1, temp2);
+                	else if (trip&&!trip2)
+                	{
+                		//System.out.println(torepc);
+                		inpo = this.replacebychar(inpo, beg, end);
+                		break;
+                	}
+                	else if (trip2) 
                 	{
                 		found=beg;
                 		break;
                 	}
                 }
-                if (trip)
+                else if (nid)
+                {
+                	inpo = this.replacebychar(inpo, beg, end);
                 	break;
+                }
                 j = lps[j - 1]; 
             } 
   
@@ -122,7 +141,27 @@ public class AdvSubstring {
 		trlen = ori.length();
 		inpo = inp;;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp, false, true);;
+		adv.KMPSearch(ori, inp, true, true, false);
 		return found;
+    }
+    protected boolean check(String txt, int beg, int end)
+    {
+    	boolean trip =false;
+    	if (!Character.isJavaIdentifierPart(txt.charAt(beg-1))&&!Character.isJavaIdentifierPart(txt.charAt(end)))
+    	{
+    		if (txt.charAt(beg-1)!='.'&&txt.charAt(end)!='.')
+    			trip = true;
+    	}
+    	return trip;
+    }	
+    protected String replacebychar(String inp, int st, int en)
+    {
+    	//System.out.println(rep);//("~	"+inp);
+    	int len = inp.length();
+    	String p1 = inp.substring(0, st);
+    	String p2 = inp.substring(en, len);
+    	inp = p1+torepc+p2;
+    	//System.out.println(inp);
+    	return inp;
     }
 }

@@ -112,13 +112,17 @@ public class Commonizer2 {
 					org = org.substring(j+1, len);
 					//System.out.println(ind);
 				}while (ind!=-1);
+			//System.out.println(locmp);
 			for (Map.Entry<String,String> entry : locmp.entrySet())
 			{
 				ky = entry.getKey();
-				lval = entry.getValue(); 
-				//System.out.println(ky+" "+lval);
+				lval = entry.getValue();
+				//System.out.println(inp);
+				//System.out.println(pref+" "+ky+" "+inp);
 				inp = AdvSubstring.replace(inp, ky, lval);
+				//System.out.println("new\n"+inp);
 			}
+			//System.out.println("br");
 			//locmp.clear();
 		return inp;
 	}
