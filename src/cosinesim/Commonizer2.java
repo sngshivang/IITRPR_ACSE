@@ -7,7 +7,7 @@ package cosinesim;
 import java.util.*;
 
 public class Commonizer2 {
-	static Vector<String> txtdat;
+	Map <String, String> lcrep;
 	String hash = "#c";
 	String mhsh = "#m";
 	String upref="";
@@ -124,6 +124,7 @@ public class Commonizer2 {
 	}
 	protected String checkset(String inp, String flstr, String pref)
 	{
+		this.locresolve(flstr);
 		Iterator<String> it = Structuring.pendvar.iterator();
 		Vector<String> todel = new Vector<>();
 		String var, vrhsh = pref+"_"+"#v", out, rcv, rcp;
@@ -131,10 +132,10 @@ public class Commonizer2 {
 		while (it.hasNext())
 		{
 			var = it.next();
-			//System.out.println(flstr);
+			//System.out.println(var);
 			while ((pos=AdvSubstring.find(flstr, var))!=-1)
 			{
-				//System.out.println(flstr);
+				//System.out.println(var);
 				str = pos-1;
 				pos-=2;
 				if (pos>-1&&flstr.charAt(pos)==32)
@@ -143,9 +144,10 @@ public class Commonizer2 {
 				{
 					out = vrhsh+String.valueOf(this.vrcnt);
 					this.vrcnt++;
-					rcv = Structuring.tmpresolve(flstr);
+					rcv = this.refill(flstr, var ,out);
 					//System.out.println(rcv);
 					rcp = AdvSubstring.replace(rcv, var, out);
+					flstr = AdvSubstring.replace(flstr, var, out);
 					//System.out.println(rcp);
 					inp = inp.replace(rcv, rcp);
 					todel.add(var);
@@ -161,6 +163,63 @@ public class Commonizer2 {
 		}
 		for (i=0;i<todel.size();i++)
 			Structuring.pendvar.remove(todel.get(i));
+		return inp;
+	}
+	protected void locresolve(String inp)
+	{
+		lcrep = new HashMap<>();
+		//System.out.println(inp);
+		int ind,i,len;char ch;String num,fnd;
+		do
+		{
+			num="";
+			ind = inp.indexOf("$IGNORE");
+			len = inp.length();
+			for (i=ind+7;i<len;i++)
+			{
+				ch = inp.charAt(i);
+				if (ch>47&&ch<58)
+					num+=String.valueOf(inp.charAt(i));
+				else
+					break;
+			}
+			num = "$IGNORE"+num+"$";
+			if (Structuring.blmp.get(num)!=null)
+			{
+				fnd = Structuring.blmp.get(num);
+				lcrep.put(num, fnd);
+				inp = inp.replace(num, fnd);
+			}
+			
+		}while (ind!=-1);
+	}
+	protected String refill(String inp, String var, String out)
+	{
+		int ind,i,len;char ch;String num,fnd, tmp;
+		do
+		{
+			num="";
+			ind = inp.indexOf("$IGNORE");
+			len = inp.length();
+			for (i=ind+7;i<len;i++)
+			{
+				ch = inp.charAt(i);
+				if (ch>47&&ch<58)
+					num+=String.valueOf(inp.charAt(i));
+				else
+					break;
+			}
+			num = "$IGNORE"+num+"$";
+			if (this.lcrep.get(num)!=null)
+			{
+				fnd = this.lcrep.get(num);
+				inp = inp.replace(num, fnd);
+				tmp = lcrep.get(num);
+				tmp = AdvSubstring.replace(tmp, var, out);
+				lcrep.put(num, tmp);
+			}
+			
+		}while (ind!=-1);
 		return inp;
 	}
 	protected static boolean stoppoints(char inp)

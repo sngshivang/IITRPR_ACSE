@@ -122,7 +122,7 @@ public class AdvSubstring {
 		trlen = ori.length();
 		inpo = inp;;
 		AdvSubstring adv = new AdvSubstring();
-		adv.KMPSearch(ori, inp, true, true);;
+		adv.KMPSearch(ori, inp, false, true);;
 		return found;
     }
 }

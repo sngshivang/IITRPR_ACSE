@@ -62,9 +62,15 @@ public class Structuring {
 		reschar = new HashMap<>();
 		blmp = new HashMap<>();
 		pendvar = new HashSet<>();
+		System.out.println("Processing code.........");
 		prog = str2ret(prog);
 		if (args[1].equals("CON") && trip)
+		{
+		System.out.println("-------Code starts here------");
 		System.out.print(prog);
+		System.out.println("\n-------Code Ends here--------");
+		}
+		
 		else if (args[1].equals("FILE") && trip)
 		{
 			if (args.length==2){
@@ -79,10 +85,12 @@ public class Structuring {
 			try {
 				FileOutputStream fl1 = new FileOutputStream(pathspl[0]);
 				BufferedOutputStream bfis = new BufferedOutputStream(fl1);
+				System.out.println("Writing output to file.........");
 				for (int i=0;i<prog.length();i++)
 					{
 					bfis.write(prog.charAt(i));
 					}
+				System.out.println("Code successfully normalized.\nOutput File: "+pathspl[0]);
 				bfis.close();
 			}
 			catch(Exception e)
@@ -107,9 +115,10 @@ public class Structuring {
 			return st.single_opers(inp);
 		}catch(Exception e)
 		{
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println("NORMALIZATION FAILED!\nThe program failed to normalize the give code. This may be due to an erroneous code. Please make sure your source code is in Java and can be compiled.");
 			System.out.println("If that fails, there may be an issue with the BETA version of this software your are using.\nPlease report the issue to the developer on the program's github page");
+			System.exit(1);
 			return "ERR";
 		}
 	}
@@ -259,8 +268,8 @@ public class Structuring {
 		System.out.println("\nOptions\n");
 		System.out.println("Source: Valid input filepath");
 		System.out.println("Output type : CON/FILE\n\tCON prints output on the console. Omit third argument when this option is used");
-		System.out.println("\tFILE prints output to the specified destination file. Requires third argument");
-		System.out.println("Destination File: The destination file path when second argument is FILE");
+		System.out.println("\tFILE prints output to the specified destination file.\n\tThrid argument if skipped will create the output file in the same directory as the source file.");
+		System.out.println("Destination File: The destination file path when second argument is FILE(Optional)");
 	}
 	protected String represvchar(String inp)
 	{
@@ -323,6 +332,7 @@ public class Structuring {
 		test = this.redoresvchar(test);
 		test = this.redotext(test);
 		test = this.addnewline(test);
+		//this.printout();
 		this.cleanup();
 		return test;
 	}
@@ -673,7 +683,8 @@ public class Structuring {
 	}
 	protected void printout()
 	{
-		
-		System.out.println(mptv);
+		Iterator<String> it = pendvar.iterator();
+		while (it.hasNext())
+			System.out.println(it.next());
 	}
 }
