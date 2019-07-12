@@ -83,7 +83,9 @@ public class AdvSubstring {
                 }
                 else if (nid)
                 {
+                	//System.out.println(inpo+"\n");
                 	inpo = this.replacebychar(inpo, beg, end);
+                	//System.out.println(inpo+"\n");
                 	break;
                 }
                 j = lps[j - 1]; 
@@ -149,7 +151,7 @@ public class AdvSubstring {
     	boolean trip =false;
     	if (!Character.isJavaIdentifierPart(txt.charAt(beg-1))&&!Character.isJavaIdentifierPart(txt.charAt(end)))
     	{
-    		if (txt.charAt(beg-1)!='.'&&txt.charAt(end)!='.')
+    		if (!(txt.charAt(beg-1)=='.')) //&&txt.charAt(end)=='.')) this change is temporary
     			trip = true;
     	}
     	return trip;

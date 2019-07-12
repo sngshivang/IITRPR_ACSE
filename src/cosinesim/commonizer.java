@@ -23,11 +23,22 @@ public class commonizer {
 		System.out.println("$TEX$T");
 		return inp;
 	}
-	protected String removehash(String inp)
+	protected String removehash(String inp, Map <String, String> mp)
 	{
 		int len = inp.length();
 		System.out.println("$TEX$T");
 		String out = "hello";
+		for (int i=0;i<10;i++)
+		{
+			System.out.println(i);
+		}
+		try {
+			System.out.println("Hello");
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		return out;
 	}
 }

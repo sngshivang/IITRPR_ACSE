@@ -1,7 +1,5 @@
-/*There was some problem with the AdvancedSubstring algo. Please check
-Parameters where array may be used. Requires attention.
-Text replacement algorithm must rectify the issues with escape sequences
-WARNING- Development still under BETA- Output might be unintended or completely off the mark. */ 
+/*WARNING- Development still under BETA- Output might be unintended or completely off the mark.
+ * Check issue with parameters of reserved methods such as for/while, etc. */ 
 package cosinesim;
 
 import java.io.BufferedInputStream;
@@ -21,12 +19,13 @@ import java.util.HashSet;
 
 public class Structuring {
 	static Vector<String> txtdat;
-	static Set <String> pendvar;
-	String hash = "#c", phsh = "#p", univ, mhsh = "#m", vrhsh = "#v";;
-	static Map <String, String> blmp,clmp,reschar;
-	static Map <String, Map <String,String>> mptv;
+	static Map <String, Set<String>> pendvar;
+	String hash = "#c", phsh = "#p", univ, mhsh = "#m", vrhsh = "#v";
+	static Map <String, String> blmp,reschar;
+	static Map <String, Map <String,String>> mptv,mtmp,clmp;
+	static Map <String, Vector<Integer>> vmp;
 	static Stack <String> st;
-	int cls=0, pcnt=0, icnt=0, mcnt=0,vrcnt=0, nfree;
+	int pcnt=0, icnt=0, mcnt=0,vrcnt=0, nfree;
 	static Commonizer2 cm;
 	public static void main(String args[])
 	{
@@ -59,9 +58,11 @@ public class Structuring {
 		st = new Stack<>();
 		clmp = new HashMap<>();
 		mptv = new HashMap<>();
+		vmp = new HashMap<>();
 		reschar = new HashMap<>();
 		blmp = new HashMap<>();
-		pendvar = new HashSet<>();
+		mtmp = new HashMap<>();
+		pendvar = new HashMap<>();
 		System.out.println("Processing code.........");
 		prog = str2ret(prog);
 		if (args[1].equals("CON") && trip)
@@ -105,6 +106,7 @@ public class Structuring {
 	}
 	public static String str2ret(String inp)
 	{
+		
 		txtdat = new Vector<String>();
 		st = new Stack<>();
 		clmp = new HashMap<>();
@@ -124,12 +126,13 @@ public class Structuring {
 	}
 	public String structures(String inp, String pref)
 	{
+		
 		int len,i,ind,ind1,ind2,k,cnt=10,bc,bo;
 		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[],sstr3;
 		cnt--;
 		do
 		{
-			//System.out.println(inpc);
+			//System.out.println(pref);
 			len = inpc.length();
 			ind = inpc.indexOf('{');
 			if (ind!=-1)
@@ -206,13 +209,15 @@ public class Structuring {
 					temp = this.metnormal(sstr2, pref);
 					pref = temp[2];
 					//System.out.println(temp[1]+" "+temp[2]);
+					
 					if (!temp[0].equals("$INV"))
 					{
 						sstr2 = sstr.substring(bo, bc+1);
-						sstr3 = this.parnormal(sstr2, 0, pref);
+						sstr3 = this.parnormal(sstr2, 0, 0, pref);
 						inpc = AdvSubstring.replaceFirst(inpc, temp[1], temp[2]);
 						inpc = AdvSubstring.nidreplaceFirst(inpc, sstr2, sstr3);
 					}
+						
 					}
 					else if (i>-1){
 					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
@@ -231,6 +236,116 @@ public class Structuring {
 			}
 		}while(ind!=-1);
 		//System.out.println("Exit");
+		return inpc;
+	}
+	public String restructures(String inp, String pref)
+	{
+		int len,i,ind,ind1,ind2,k,cnt=10,bc,bo, com=0;
+		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[],sstr3;
+		cnt--;
+		do
+		{
+			//System.out.println(pref);
+			len = inpc.length();
+			ind = inpc.indexOf('{');
+			if (ind!=-1)
+			{
+				i=ind;
+				if (i>0&&inpc.charAt(i-1)==32)
+					i-=2;
+				else 
+					i--;
+				if (i>-1&&inpc.charAt(i)==')');
+				else if (i>-1)
+					{
+					while (i>-1&&!this.stoppoints(inpc.charAt(i)))
+					i--;
+					temp = this.classnormal(inpc.substring(i+1, ind+1), pref);
+					pref = temp[1];
+					}
+				sstr = inpc.substring(ind+1,len);
+				ind1 = sstr.indexOf('{');
+				ind2 = sstr.indexOf('}');
+				//System.out.println(ind1+" "+ind2);
+				if (ind2!=-1&&(ind1==-1||ind1>ind2))
+				{
+					//System.out.println("PREF:"+ pref);
+					block = sstr.substring(0, ind2);
+					sstr = "{"+block+"}";
+					sstr2 = tmpresolve(sstr);
+					k = pref.length()-1;
+					while (k>-1)
+					{
+						if (!Character.isDigit(pref.charAt(k)))
+						{
+							if (pref.charAt(k)=='c')
+								com = 2;
+							else if (pref.charAt(k)=='m')
+								com = 1;
+							break;
+						}
+						k--;
+					}
+					if (com==1||com==2)
+					{
+						sstr2 = this.classmet(sstr2, pref);
+						
+					if (com==2)
+					{
+						if (mtmp.get(pref)!=null)
+						{
+							sstr2 = this.renmet(sstr2, pref);
+						}
+					}
+					}
+					//System.out.println(sstr2);
+					inv = "$IGNORE"+String.valueOf(icnt)+"$";
+					icnt++;
+					blmp.put(inv, sstr2);
+					inpc = inpc.replace(sstr, inv) ;
+					//System.out.println(inpc);
+					//System.out.println(inpc);
+				}
+				else if (ind2==-1)
+					break;
+				else
+				{
+					i = ind1;
+					if (i>0&&sstr.charAt(i-1)==32)
+						i-=2;
+					else 
+						i--;
+					if (i>-1&&sstr.charAt(i)==')')
+					{
+						bc = i;
+					while (i>-1&&sstr.charAt(i)!='(')
+						i--;
+					bo = i;
+					i--;
+					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
+						i--;
+					sstr2 = sstr.substring(i+1, ind1+1);
+					//System.out.println(sstr2);
+					temp = this.metnormal(sstr2, pref);
+					pref = temp[2];
+					//System.out.println(temp[1]+" "+temp[2]);
+					}
+					else if (i>-1){
+					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
+						i--;
+					//System.out.println(pref);
+					//System.out.println(sstr.substring(i+1, ind1+1));
+					temp = this.classnormal(sstr.substring(i+1, ind1+1), pref);
+					pref = temp[1];
+					//System.out.println(pref);
+					}
+					sstr = sstr.substring(ind1, ind2+1);
+					inpc = inpc.replace(sstr,this.restructures(sstr, pref));
+					//System.out.println(inpc);
+					pref = "";
+				}
+			}
+		}while(ind!=-1);
 		return inpc;
 	}
 	protected static String tmpresolve(String inp)
@@ -269,6 +384,7 @@ public class Structuring {
 		System.out.println("Output type : CON/FILE\n\tCON prints output on the console. Omit third argument when this option is used");
 		System.out.println("\tFILE prints output to the specified destination file.\n\tThrid argument if skipped will create the output file in the same directory as the source file.");
 		System.out.println("Destination File: The destination file path when second argument is FILE(Optional)");
+		System.out.println("\nExample:\t java -jar normalizer.jar /home/user/Desktop/test.java FILE /home/user/Downloads/");
 	}
 	protected String represvchar(String inp)
 	{
@@ -327,6 +443,10 @@ public class Structuring {
 			System.out.println("value : " + blmp.get(key));
 		}*/
 		test = tmpresolve(test);
+		icnt = 0;
+		//test = this.restructures(test, "");
+		//test = tmpresolve(test);
+		test = this.classmet(test, "null");
 		test = this.removehash(test);
 		test = this.redoresvchar(test);
 		test = this.redotext(test);
@@ -341,6 +461,7 @@ public class Structuring {
 		blmp.clear();
 		clmp.clear();
 		reschar.clear();
+		vmp.clear();
 	}
 	protected String removenlines(String inp)
 	{
@@ -480,9 +601,17 @@ public class Structuring {
 	protected String[] classnormal(String inp, String pref)
 	{
 		//System.out.println(pref);
-		String org=inp,part,out,keywrd,send[]= {"$INV","$INV"};
+		String org=inp,part,out,keywrd,send[]= {"$INV","$INV"},cpref = pref;
+		Map<String,String> cpt;
+		if (clmp.get(pref)!=null)
+			cpt = clmp.get(pref);
+		else 
+			cpt = new HashMap<>();
+		if (cpref.equals(""))
+			cpref = "null";
+		Vector <Integer> cvt;
 		boolean trip =false;
-		int len, ind,i,j;
+		int len, ind,i,j,cls=0;
 			//do {
 					ind = org.indexOf('{');
 					len = org.length();j=ind;
@@ -499,6 +628,7 @@ public class Structuring {
 							ind--;
 							if (ind>-1&&org.charAt(ind)=='#')
 								{trip = true;
+								ind = inp.indexOf("#c0");
 								ind--;
 								break;
 								}
@@ -513,14 +643,23 @@ public class Structuring {
 						{
 						if (!trip)
 						{
-							out = this.hash+String.valueOf(cls);
+							if (vmp.get(cpref)==null) {
+								cvt = new Vector<>();
+								cvt.add(0);
+								cvt.add(0);
+							}
+							else 
+								cvt = vmp.get(pref);
+							out = this.hash+String.valueOf(cvt.get(0));
 							if (pref.equals(""))
 								pref = out;
 							else 
 							pref = pref + "_" + out;
 							send[0]=part;
-							clmp.put(part, pref);
-							cls++;
+							cpt.put(part, pref);
+							clmp.put(cpref, cpt);
+							cvt.set(0, cvt.get(0)+1);
+							vmp.put(cpref, cvt);
 							//univ = AdvSubstring.replace(univ, part, pref);
 						}
 						else 
@@ -538,12 +677,75 @@ public class Structuring {
 					send[1] = pref;
 					return send;
 	}
+	protected String classmet(String sstr2, String pref)
+	{
+		Map <String,String> tmp;
+		if (clmp.get(pref)!=null)
+		{
+			tmp = clmp.get(pref);
+			for (Map.Entry<String, String> fmp:tmp.entrySet()) {
+			sstr2 = AdvSubstring.replace(sstr2, fmp.getKey(), fmp.getValue());
+			}
+			
+		}
+		return sstr2;
+	}
+	protected String renmet(String inp, String pref)
+	{
+		//System.out.println(inp);
+		int ind,rt,len;
+		boolean trip;
+		Map <String, String> tmp;
+		String met, cp=inp, toch;
+		do
+		{
+			trip =true;
+			ind = inp.indexOf('(');
+			len = inp.length();
+			if (ind!=-1)
+			{
+				ind--;
+				if (inp.charAt(ind)==32)
+					ind--;
+				rt = ind+1;
+				while (ind>-1&&!this.stoppoints(inp.charAt(ind))&&inp.charAt(ind)!='.'&&inp.charAt(ind)!=32)
+				{
+					if (inp.charAt(ind)=='#')
+						{trip = false;
+						break;
+						}
+					ind--;
+				}
+				if (ind>-1&&trip)
+				{
+					met = inp.substring(ind+1, rt);
+					tmp = mtmp.get(pref);
+					toch = tmp.get(met);
+					if (tmp!=null&&toch!=null)
+					{
+					cp = AdvSubstring.replace(cp, met, toch);
+					System.out.println(tmp+" " + toch+" "+met);
+					}
+					
+				}
+				inp = inp.substring(rt+1, len);
+			}
+			
+		}while(ind!=-1);
+		return cp;
+	}
 	protected String[] metnormal(String inp, String pref)
 	{
 		String send[] = {"$INV","$INV", "$INV"};
-		String org=inp,part,out;
+		Map <String,String> mpt;
+		Vector <Integer> cvt;
+		if (mtmp.get(pref)!=null)
+			mpt = mtmp.get(pref);
+		else 
+			mpt = new HashMap<>();
+		String org=inp,part,out,cpref = pref;
 		boolean trip =false, trip2 = false;
-		int len, ind,i,j;
+		int len, ind,j;
 				trip = false;
 					ind = org.indexOf('(');
 					len = org.length();j=ind;
@@ -560,6 +762,7 @@ public class Structuring {
 							if (ind>-1&&org.charAt(ind)=='#')
 								{
 								trip = true;
+								ind = inp.indexOf("#c0");
 								ind--;
 								break;
 								}
@@ -568,13 +771,23 @@ public class Structuring {
 							trip2=true;
 						if (!trip&&!trip2&&!KeywordCheck.chk(part))
 						{
-							out = this.mhsh+String.valueOf(mcnt);
+							if (vmp.get(cpref)==null) {
+								cvt = new Vector<>();
+								cvt.add(0);
+								cvt.add(0);
+							}
+							else 
+								cvt = vmp.get(pref);
+							out = this.mhsh+String.valueOf(cvt.get(1));
 								//metmp.put(pref, true);
-								pref = pref + "_" + out;
+							pref = pref + "_" + out;
 								//this.parnormal(org, j, pref);
-								mcnt++;
-								send[0] = out;
-								send[1] = part;
+							mpt.put(part, pref);
+							mtmp.put(cpref, mpt);
+							cvt.set(1, cvt.get(1)+1);
+							vmp.put(cpref, cvt);
+							send[0] = out;
+							send[1] = part;
 								//univ = AdvSubstring.replace(univ, part, pref);
 						}
 						else if (trip)
@@ -589,11 +802,11 @@ public class Structuring {
 					send[2] =  pref;
 				return send;
 	}
-	protected String parnormal(String inp, int l, String pref)
+	protected String parnormal(String inp, int l, int pcnt, String pref)
 	{
-		//System.out.println(pref);
+		//System.out.println(inp);
 		Map <String, String> mp1 = new HashMap<>();
-		int sze,r=0,i,pcnt=0;
+		int sze,r=0,i;
 		for (i=l+1;i<inp.length();i++)
 			if (inp.charAt(i)==')')
 			{
@@ -602,7 +815,10 @@ public class Structuring {
 			}
 		String itok,out, org = inp.substring(l+1,r), tmp;
 		org = this.parpreproc(org);
-		StringTokenizer st = new StringTokenizer(org),st2;
+		StringTokenizer sti = new StringTokenizer(org),st ,st2;
+		if (sti.hasMoreTokens())
+			org = sti.nextToken(";");
+		st = new StringTokenizer(org);
 		Vector <String> vt = new Vector<>(),vt2 = new Vector<>();
 		while (st.hasMoreTokens())
 		vt.add(st.nextToken(","));
@@ -611,21 +827,30 @@ public class Structuring {
 		{
 			itok = (String)it.next();
 			st2 = new StringTokenizer(itok);
+			if (st2.hasMoreTokens())
+				itok = st2.nextToken(":");
+			st2 = new StringTokenizer(itok);
+			if (st2.hasMoreTokens())
+				itok = st2.nextToken("=");
+			st2 = new StringTokenizer(itok);
 			while (st2.hasMoreTokens())
 			{
 				vt2.add(st2.nextToken());
 			}
 			sze = vt2.size();
 			//System.out.println(sze);
+			if (this.isValidKeyword(vt2.get(sze-1))) {
 			out = this.phsh+String.valueOf(pcnt);
 			tmp = pref + "_" + out;
 			pcnt++;
 			mp1.put(vt2.get(sze-1), tmp);
 			inp = AdvSubstring.replace(inp, vt2.get(sze-1), tmp);
+			}
 			vt2.clear();
 		}
 		if (!mp1.isEmpty()) 
 		mptv.put(pref, mp1);
+		vrcnt = pcnt;
 		//System.out.println(mptv);
 		return inp;
 	}
@@ -638,10 +863,31 @@ public class Structuring {
 			if (ind!=-1)
 			{
 				i = ind+1;
-				while (inp.charAt(i)!=']')
+				while (i<len&&inp.charAt(i)!=']')
 					i++;
+				if (i<len) {
 				tmp = inp.substring(ind, i+1);
 				inp = inp.replace(tmp, "");
+				}
+				else
+					break;
+			}
+		}while (ind!=-1);
+		len = inp.length();
+		do
+		{
+			ind = inp.indexOf('<');
+			if (ind!=-1)
+			{
+				i = ind+1;
+				while (i<len&&inp.charAt(i)!='>')
+					i++;
+				if (i<len) {
+				tmp = inp.substring(ind, i+1);
+				inp = inp.replace(tmp, "");
+				}
+				else 
+					break;
 			}
 		}while (ind!=-1);
 		return inp;
@@ -684,10 +930,28 @@ public class Structuring {
 			trip=true;
 		return trip;
 	}
+	protected boolean isValidKeyword(String inp)
+	{
+		boolean trip =true;
+		int len = inp.length();
+		for (int i=0;i<len;i++)
+		{
+			if (!Character.isJavaIdentifierPart(inp.charAt(i))) {
+				trip = false;
+				break;
+			}
+		}
+		return trip;
+	}
 	protected void printout()
 	{
-		Iterator<String> it = pendvar.iterator();
-		while (it.hasNext())
-			System.out.println(it.next());
+		Vector vt;String ky;
+		for (Map.Entry<String, Vector<Integer>> mp : vmp.entrySet() )
+		{
+			ky = mp.getKey();
+			vt = mp.getValue();
+			System.out.println(ky+" "+ vt.get(0)+" "+vt.get(1));
+		}
 	}
+	
 }
