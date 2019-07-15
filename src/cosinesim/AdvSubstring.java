@@ -8,7 +8,6 @@ public class AdvSubstring {
 	static int found;
 	public static String replace(String inp, String ori, String torep)
 	{
-		//System.out.println(torep);
 		inp = " "+inp+" ";
 		trlen = ori.length();
 		inpo = inp;
@@ -71,7 +70,6 @@ public class AdvSubstring {
                 		inpo = inpo.replace(temp1, temp2);
                 	else if (trip&&!trip2)
                 	{
-                		//System.out.println(torepc);
                 		inpo = this.replacebychar(inpo, beg, end);
                 		break;
                 	}
@@ -83,15 +81,12 @@ public class AdvSubstring {
                 }
                 else if (nid)
                 {
-                	//System.out.println(inpo+"\n");
                 	inpo = this.replacebychar(inpo, beg, end);
-                	//System.out.println(inpo+"\n");
                 	break;
                 }
                 j = lps[j - 1]; 
             } 
-  
-            // mismatch after j matches 
+
             else if (i < N && pat.charAt(j) != txt.charAt(i)) { 
                 // Do not match lps[0..lps[j-1]] characters, 
                 // they will match anyway 
@@ -158,12 +153,10 @@ public class AdvSubstring {
     }	
     protected String replacebychar(String inp, int st, int en)
     {
-    	//System.out.println(rep);//("~	"+inp);
-    	int len = inp.length();
+     	int len = inp.length();
     	String p1 = inp.substring(0, st);
     	String p2 = inp.substring(en, len);
     	inp = p1+torepc+p2;
-    	//System.out.println(inp);
     	return inp;
     }
 }

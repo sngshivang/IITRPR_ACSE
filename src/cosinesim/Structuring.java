@@ -1,10 +1,9 @@
 /*WARNING- Development still under BETA- Output might be unintended or completely off the mark.
- * Check issue with parameters of reserved methods such as for/while, etc. */ 
+ Version 0.1.1 */
 package cosinesim;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -12,16 +11,14 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.util.Vector;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Structuring {
 	static Vector<String> txtdat;
 	static Map <String, Set<String>> pendvar;
 	String hash = "#c", phsh = "#p", univ, mhsh = "#m", vrhsh = "#v";
-	static Map <String, String> blmp,reschar;
+	static Map <String, String> blmp,reschar,inimp;
 	static Map <String, Map <String,String>> mptv,mtmp,clmp;
 	static Map <String, Vector<Integer>> vmp;
 	static Stack <String> st;
@@ -61,6 +58,7 @@ public class Structuring {
 		vmp = new HashMap<>();
 		reschar = new HashMap<>();
 		blmp = new HashMap<>();
+		inimp = new HashMap<>();
 		mtmp = new HashMap<>();
 		pendvar = new HashMap<>();
 		System.out.println("Processing code.........");
@@ -127,12 +125,10 @@ public class Structuring {
 	public String structures(String inp, String pref)
 	{
 		
-		int len,i,ind,ind1,ind2,k,cnt=10,bc,bo;
+		int len,i,ind,ind1,ind2,bc,bo;
 		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[],sstr3;
-		cnt--;
 		do
 		{
-			//System.out.println(pref);
 			len = inpc.length();
 			ind = inpc.indexOf('{');
 			if (ind!=-1)
@@ -150,8 +146,6 @@ public class Structuring {
 					while (i>-1&&!this.stoppoints(inpc.charAt(i)))
 						i--;
 					sstr = inpc.substring(i+1, ind+1);
-					System.out.println("bla blAa");
-					//pref = this.metnormal(sstr, pref);
 					}
 				else if (i>-1)
 					{
@@ -159,7 +153,6 @@ public class Structuring {
 					i--;
 					temp = this.classnormal(inpc.substring(i+1, ind+1), pref);
 					pref = temp[1];
-					//System.out.println(inpc);
 					if (!temp[0].equals("$INV")) {
 						inpc = AdvSubstring.replaceFirst(inpc, temp[0], temp[1]);
 						pref="";
@@ -169,22 +162,17 @@ public class Structuring {
 				sstr = inpc.substring(ind+1,len);
 				ind1 = sstr.indexOf('{');
 				ind2 = sstr.indexOf('}');
-				//System.out.println(ind1+" "+ind2);
 				if (ind2!=-1&&(ind1==-1||ind1>ind2))
 				{
-					//System.out.println("PREF:"+ pref);
 					block = sstr.substring(0, ind2);
 					sstr = "{"+block+"}";
 					sstr2 = tmpresolve(sstr);
 					sstr2 = Commonizer2.equalsuniv(sstr2, pref, sstr);
-					//System.out.println(sstr2);
 					inv = "$IGNORE"+String.valueOf(icnt)+"$";
 					icnt++;
 					st.push(inv);
 					blmp.put(inv, sstr2);
 					inpc = inpc.replace(sstr, inv) ;
-					//System.out.println(inpc);
-					//System.out.println(inpc);
 				}
 				else if (ind2==-1)
 					break;
@@ -205,10 +193,8 @@ public class Structuring {
 					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
 						i--;
 					sstr2 = sstr.substring(i+1, ind1+1);
-					//System.out.println(sstr2);
 					temp = this.metnormal(sstr2, pref);
 					pref = temp[2];
-					//System.out.println(temp[1]+" "+temp[2]);
 					
 					if (!temp[0].equals("$INV"))
 					{
@@ -222,7 +208,6 @@ public class Structuring {
 					else if (i>-1){
 					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
 						i--;
-					//System.out.println(sstr.substring(i+1, ind1+1));
 					temp = this.classnormal(sstr.substring(i+1, ind1+1), pref);
 					pref = temp[1];
 					if (!temp[0].equals("$INV"))
@@ -230,22 +215,18 @@ public class Structuring {
 					}
 					sstr = sstr.substring(ind1, ind2+1);
 					inpc = inpc.replace(sstr,this.structures(sstr, pref));
-					//System.out.println(inpc);
 					pref = "";
 				}
 			}
 		}while(ind!=-1);
-		//System.out.println("Exit");
 		return inpc;
 	}
 	public String restructures(String inp, String pref)
 	{
-		int len,i,ind,ind1,ind2,k,cnt=10,bc,bo, com=0;
-		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[],sstr3;
-		cnt--;
+		int len,i,ind,ind1,ind2,k,com=0;
+		String sstr,sstr2,inv = "$IGNORE",block,inpc=inp,temp[];
 		do
 		{
-			//System.out.println(pref);
 			len = inpc.length();
 			ind = inpc.indexOf('{');
 			if (ind!=-1)
@@ -266,10 +247,8 @@ public class Structuring {
 				sstr = inpc.substring(ind+1,len);
 				ind1 = sstr.indexOf('{');
 				ind2 = sstr.indexOf('}');
-				//System.out.println(ind1+" "+ind2);
 				if (ind2!=-1&&(ind1==-1||ind1>ind2))
 				{
-					//System.out.println("PREF:"+ pref);
 					block = sstr.substring(0, ind2);
 					sstr = "{"+block+"}";
 					sstr2 = tmpresolve(sstr);
@@ -298,13 +277,10 @@ public class Structuring {
 						}
 					}
 					}
-					//System.out.println(sstr2);
 					inv = "$IGNORE"+String.valueOf(icnt)+"$";
 					icnt++;
 					blmp.put(inv, sstr2);
 					inpc = inpc.replace(sstr, inv) ;
-					//System.out.println(inpc);
-					//System.out.println(inpc);
 				}
 				else if (ind2==-1)
 					break;
@@ -317,31 +293,23 @@ public class Structuring {
 						i--;
 					if (i>-1&&sstr.charAt(i)==')')
 					{
-						bc = i;
 					while (i>-1&&sstr.charAt(i)!='(')
 						i--;
-					bo = i;
 					i--;
 					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
 						i--;
 					sstr2 = sstr.substring(i+1, ind1+1);
-					//System.out.println(sstr2);
 					temp = this.metnormal(sstr2, pref);
 					pref = temp[2];
-					//System.out.println(temp[1]+" "+temp[2]);
 					}
 					else if (i>-1){
 					while (i>-1&&!this.stoppoints(sstr.charAt(i)))
 						i--;
-					//System.out.println(pref);
-					//System.out.println(sstr.substring(i+1, ind1+1));
 					temp = this.classnormal(sstr.substring(i+1, ind1+1), pref);
 					pref = temp[1];
-					//System.out.println(pref);
 					}
 					sstr = sstr.substring(ind1, ind2+1);
 					inpc = inpc.replace(sstr,this.restructures(sstr, pref));
-					//System.out.println(inpc);
 					pref = "";
 				}
 			}
@@ -438,20 +406,15 @@ public class Structuring {
 		univ = this.trimmer(univ);
 		univ = this.represvchar(univ);
 		String test = this.structures(univ,"");
-		/*for (String key: blmp.keySet()) {
-			System.out.println("key : " + key);
-			System.out.println("value : " + blmp.get(key));
-		}*/
 		test = tmpresolve(test);
 		icnt = 0;
-		//test = this.restructures(test, "");
-		//test = tmpresolve(test);
+		test = this.restructures(test, "");
+		test = tmpresolve(test);
 		test = this.classmet(test, "null");
 		test = this.removehash(test);
 		test = this.redoresvchar(test);
 		test = this.redotext(test);
 		test = this.addnewline(test);
-		//this.printout();
 		this.cleanup();
 		return test;
 	}
@@ -491,7 +454,7 @@ public class Structuring {
 	}
 	protected String textrepo(String inp)
 	{
-		int ind, eind, esc;
+		int ind, eind;
 		String deft,phr;
 		char apos = 34;
 		do {
@@ -526,7 +489,6 @@ public class Structuring {
 					tmp+=String.valueOf(inp.charAt(eind));
 					eind++;
 				}
-				//System.out.println(tmp);
 				ky = Integer.valueOf(tmp);
 				out = txtdat.get(ky);
 				rlen = out.length();
@@ -600,7 +562,6 @@ public class Structuring {
 	}
 	protected String[] classnormal(String inp, String pref)
 	{
-		//System.out.println(pref);
 		String org=inp,part,out,keywrd,send[]= {"$INV","$INV"},cpref = pref;
 		Map<String,String> cpt;
 		if (clmp.get(pref)!=null)
@@ -611,13 +572,11 @@ public class Structuring {
 			cpref = "null";
 		Vector <Integer> cvt;
 		boolean trip =false;
-		int len, ind,i,j,cls=0;
+		int ind;
 			//do {
 					ind = org.indexOf('{');
-					len = org.length();j=ind;
 					if (ind!=-1)
 					{
-						//System.out.println(org.substring(0,ind));
 						ind--;
 						if (ind>-1&&org.charAt(ind)==32)
 							ind--;
@@ -660,7 +619,6 @@ public class Structuring {
 							clmp.put(cpref, cpt);
 							cvt.set(0, cvt.get(0)+1);
 							vmp.put(cpref, cvt);
-							//univ = AdvSubstring.replace(univ, part, pref);
 						}
 						else 
 						{
@@ -671,7 +629,6 @@ public class Structuring {
 							pref = pref + "_" + part;
 						}
 						}
-						//org = org.substring(j+1, len-j-1);
 						
 					}
 					send[1] = pref;
@@ -680,23 +637,44 @@ public class Structuring {
 	protected String classmet(String sstr2, String pref)
 	{
 		Map <String,String> tmp;
+		StringTokenizer st;
+		String ky, val, trim, sstr3 = sstr2;
+		int fnd,l,r;
 		if (clmp.get(pref)!=null)
 		{
 			tmp = clmp.get(pref);
 			for (Map.Entry<String, String> fmp:tmp.entrySet()) {
-			sstr2 = AdvSubstring.replace(sstr2, fmp.getKey(), fmp.getValue());
-			}
+				ky = fmp.getKey();
+				val = fmp.getValue();
+				fnd = AdvSubstring.find(sstr3, ky);l= r=fnd;
+				while (fnd!=-1) {
+				while (l>-1&&!this.stoppoints(sstr3.charAt(l)))
+					l--;
+				while (r<sstr3.length()&&!this.stoppoints(sstr3.charAt(r)))
+					r++;
+				trim = sstr3.substring(l, r+1);
+				st = new StringTokenizer(trim);
+				trim = st.nextToken("=");
+				st = new StringTokenizer(trim);
+				while (st.hasMoreTokens())
+					trim = st.nextToken();
+				sstr3 = sstr3.substring(r, sstr3.length());
+				fnd = AdvSubstring.find(sstr3, ky);l= r=fnd;
+				inimp.put(trim, val);
+				}
+				sstr2 = AdvSubstring.replace(sstr2, ky, val);
+				}
 			
 		}
 		return sstr2;
 	}
 	protected String renmet(String inp, String pref)
 	{
-		//System.out.println(inp);
-		int ind,rt,len;
+		StringTokenizer st;
+		int ind,rt,len,l,lr,tcp;
 		boolean trip;
 		Map <String, String> tmp;
-		String met, cp=inp, toch;
+		String met, cp=inp, toch, temp;
 		do
 		{
 			trip =true;
@@ -705,9 +683,10 @@ public class Structuring {
 			if (ind!=-1)
 			{
 				ind--;
-				if (inp.charAt(ind)==32)
+				if (ind>-1&&inp.charAt(ind)==32)
 					ind--;
 				rt = ind+1;
+				tcp = ind;
 				while (ind>-1&&!this.stoppoints(inp.charAt(ind))&&inp.charAt(ind)!='.'&&inp.charAt(ind)!=32)
 				{
 					if (inp.charAt(ind)=='#')
@@ -716,15 +695,30 @@ public class Structuring {
 						}
 					ind--;
 				}
-				if (ind>-1&&trip)
+				while (tcp>-1&&!this.stoppoints(inp.charAt(tcp)))
+					tcp--;
+				if (ind>-1&&trip&&tcp>-1)
 				{
-					met = inp.substring(ind+1, rt);
-					tmp = mtmp.get(pref);
-					toch = tmp.get(met);
-					if (tmp!=null&&toch!=null)
+					met = inp.substring(tcp+1, rt);
+					st = new StringTokenizer(met);
+					met=st.nextToken(".");
+					st = new StringTokenizer(met);
+					while (st.hasMoreTokens())
+						met = st.nextToken();
+					l = met.indexOf('(');
+					lr = met.indexOf(')',l);
+					if (l!=-1&&lr!=-1)
+					met = met.replace(met.substring(l, lr+1), "");
+					temp = inp.substring(ind+1, rt);
+					tmp = mtmp.get(inimp.get(met));
+					if (tmp!=null) {
+					toch = tmp.get(temp);
+					if (toch!=null)
 					{
-					cp = AdvSubstring.replace(cp, met, toch);
-					System.out.println(tmp+" " + toch+" "+met);
+						toch=inp.charAt(ind)+toch;
+						temp = inp.charAt(ind)+temp;
+						cp = AdvSubstring.nidreplaceFirst(cp,temp, toch);
+					}
 					}
 					
 				}
@@ -745,10 +739,9 @@ public class Structuring {
 			mpt = new HashMap<>();
 		String org=inp,part,out,cpref = pref;
 		boolean trip =false, trip2 = false;
-		int len, ind,j;
+		int ind;
 				trip = false;
 					ind = org.indexOf('(');
-					len = org.length();j=ind;
 					if (ind!=-1)
 					{
 						ind--;
@@ -779,16 +772,13 @@ public class Structuring {
 							else 
 								cvt = vmp.get(pref);
 							out = this.mhsh+String.valueOf(cvt.get(1));
-								//metmp.put(pref, true);
 							pref = pref + "_" + out;
-								//this.parnormal(org, j, pref);
 							mpt.put(part, pref);
 							mtmp.put(cpref, mpt);
 							cvt.set(1, cvt.get(1)+1);
 							vmp.put(cpref, cvt);
 							send[0] = out;
 							send[1] = part;
-								//univ = AdvSubstring.replace(univ, part, pref);
 						}
 						else if (trip)
 						{
@@ -804,8 +794,11 @@ public class Structuring {
 	}
 	protected String parnormal(String inp, int l, int pcnt, String pref)
 	{
-		//System.out.println(inp);
-		Map <String, String> mp1 = new HashMap<>();
+		Map <String, String> mp1;
+		if (mptv.get(pref)==null)
+		mp1 = new HashMap<>();
+		else
+			mp1 = mptv.get(pref);
 		int sze,r=0,i;
 		for (i=l+1;i<inp.length();i++)
 			if (inp.charAt(i)==')')
@@ -838,7 +831,6 @@ public class Structuring {
 				vt2.add(st2.nextToken());
 			}
 			sze = vt2.size();
-			//System.out.println(sze);
 			if (this.isValidKeyword(vt2.get(sze-1))) {
 			out = this.phsh+String.valueOf(pcnt);
 			tmp = pref + "_" + out;
@@ -851,7 +843,6 @@ public class Structuring {
 		if (!mp1.isEmpty()) 
 		mptv.put(pref, mp1);
 		vrcnt = pcnt;
-		//System.out.println(mptv);
 		return inp;
 	}
 	protected String parpreproc(String inp)
@@ -943,15 +934,4 @@ public class Structuring {
 		}
 		return trip;
 	}
-	protected void printout()
-	{
-		Vector vt;String ky;
-		for (Map.Entry<String, Vector<Integer>> mp : vmp.entrySet() )
-		{
-			ky = mp.getKey();
-			vt = mp.getValue();
-			System.out.println(ky+" "+ vt.get(0)+" "+vt.get(1));
-		}
-	}
-	
 }
