@@ -115,7 +115,7 @@ public class Structuring {
 			return st.single_opers(inp);
 		}catch(Exception e)
 		{
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println("NORMALIZATION FAILED!\nThe program failed to normalize the give code. This may be due to an erroneous code. Please make sure your source code is in Java and can be compiled.");
 			System.out.println("If that fails, there may be an issue with the BETA version of this software your are using.\nPlease report the issue to the developer on the program's github page");
 			System.exit(1);
@@ -353,7 +353,10 @@ public class Structuring {
 		System.out.println("\tFILE prints output to the specified destination file.\n\tThrid argument if skipped will create the output file in the same directory as the source file.");
 		System.out.println("Destination File: The destination file path when second argument is FILE(Optional)");
 		System.out.println("\nExample:\t java -jar normalizer.jar /home/user/Desktop/test.java FILE /home/user/Downloads/");
+		System.out.println("\nVersion 0.1.1 BETA");
+		System.out.println("\nSource on https://github.com/sngshivang/IITRPR_ACSE. Follow for updates");
 	}
+	
 	protected String represvchar(String inp)
 	{
 		String key, val;
@@ -671,10 +674,10 @@ public class Structuring {
 	protected String renmet(String inp, String pref)
 	{
 		StringTokenizer st;
-		int ind,rt,len,l,lr,tcp;
+		int ind,rt,len,l=-1,lr,tcp,pl;
 		boolean trip;
 		Map <String, String> tmp;
-		String met, cp=inp, toch, temp;
+		String met="", cp=inp, toch, temp;
 		do
 		{
 			trip =true;
@@ -695,6 +698,22 @@ public class Structuring {
 						}
 					ind--;
 				}
+				//tcp = ind;
+				/*if (trip)
+				{
+					while (tcp>-1&&(inp.charAt(tcp)==32||inp.charAt(tcp)=='.'))
+						tcp--;
+					if (tcp>-1&&inp.charAt(tcp)==')')
+						{while (tcp>-1&&inp.charAt(tcp)!='(')
+							tcp--;
+						}
+					if (tcp>-1&&inp.charAt(tcp)==32)
+						tcp--;
+					l = tcp;
+					while (l>-1&&(Character.isJavaIdentifierPart(inp.charAt(l))||inp.charAt(l)=='#'))
+						l--;
+						
+				}*/
 				while (tcp>-1&&!this.stoppoints(inp.charAt(tcp)))
 					tcp--;
 				if (ind>-1&&trip&&tcp>-1)
@@ -709,7 +728,22 @@ public class Structuring {
 					lr = met.indexOf(')',l);
 					if (l!=-1&&lr!=-1)
 					met = met.replace(met.substring(l, lr+1), "");
+					
+					/*if (l>-1&&tcp>-1)
+					met  = inp.substring(l+1, tcp+1);
+					System.out.println(met);*/
 					temp = inp.substring(ind+1, rt);
+					if (met.equals("this"))
+					{
+						pl = pref.length()-1;
+						while (pref.charAt(pl)!='c')
+							pl--;
+						pref=  pref.substring(0, pl+2);
+						tmp = mtmp.get(pref);
+						//System.out.println(pref+" "+temp);
+							
+					}
+					else
 					tmp = mtmp.get(inimp.get(met));
 					if (tmp!=null) {
 					toch = tmp.get(temp);
