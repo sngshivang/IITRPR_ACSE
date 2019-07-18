@@ -104,12 +104,16 @@ public class Structuring {
 	}
 	public static String str2ret(String inp)
 	{
-		
 		txtdat = new Vector<String>();
 		st = new Stack<>();
 		clmp = new HashMap<>();
 		mptv = new HashMap<>();
+		vmp = new HashMap<>();
+		reschar = new HashMap<>();
 		blmp = new HashMap<>();
+		inimp = new HashMap<>();
+		mtmp = new HashMap<>();
+		pendvar = new HashMap<>();
 		Structuring st = new Structuring();
 		try {
 			return st.single_opers(inp);
