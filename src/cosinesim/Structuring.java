@@ -125,6 +125,7 @@ public class Structuring {
 			System.exit(1);
 			return "ERR";
 		}
+		
 	}
 	public String structures(String inp, String pref)
 	{
